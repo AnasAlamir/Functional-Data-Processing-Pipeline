@@ -1,0 +1,45 @@
+--- Starting Imperative Pipeline ---
+Reading data from: Dirty Data Sample For Training.csv
+
+Defaults Computed.
+Data Cleaned and Transformed.
+
+--- Total Spent on Coffee ---
+total:      7253.05
+
+--- Running Statistical Analysis ---
+
+--- Analysis: Quantity Sold ---
+Mean:       3.03
+Median:     3.00
+Variance:   1.92
+
+--- Analysis: Unit Price ---
+Mean:       2.95
+Median:     3.00
+Variance:   1.55
+
+--- Analysis: Original Total Spent (from CSV) ---
+Mean:       8.48
+Median:     7.50
+Variance:   38.10
+
+--- Analysis: Corrected Total (Calculated) ---
+Mean:       8.94
+Median:     8.00
+Variance:   33.97
+
+--- Trend: Top Selling Items ---
+Most Common (Mode): Juice
+
+--- Trend: Top Locations ---
+Most Common (Mode): Takeaway
+
+--- Trend: Preferred Payment Methods ---
+Most Common (Mode): Digital Wallet
+
+--- Trend: Busiest Day ---
+Most Common (Mode): 2023-02-06
+Saving cleaned data to: imperative_output.csv
+
+Saved imperative_output.csv
