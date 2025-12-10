@@ -1,91 +1,20 @@
-import csv
-import sys
 import statistics
-from datetime import datetime
+from common import (
+    read_csv,
+    save_to_csv,
+    parse_float,
+    parse_int,
+    parse_date,
+    parse_string,
+    DECIMAL_PLACES
+)
 
 # --- CONFIGURATION ---
 # The recursion limit is no longer relevant in the imperative version
 # as it avoids deep recursive calls (like the functional get_column).
-# sys.setrecursionlimit(20000)
 
 INPUT_FILE = 'dirty_cafe_sales.csv'
-OUTPUT_FILE = 'imperative_output.csv' 
-DECIMAL_PLACES = 2
-
-# --- I/O FUNCTIONS (Remain largely the same, as they are I/O bound) ---
-def read_csv(file_path):
-    """Reads a CSV file and returns its contents as a list of dictionaries."""
-    print(f"Reading data from: {file_path}")
-    try:
-        with open(file_path, mode='r', newline='', encoding='utf-8') as csvfile:
-            # Note: list(csv.DictReader(csvfile)) is already an imperative, simple list creation
-            return list(csv.DictReader(csvfile))
-    except FileNotFoundError:
-        print(f"[ERROR] Input file '{file_path}' not found.")
-        return []
-
-def save_to_csv(file_path, data):
-    """Saves a list of dictionaries to a CSV file."""
-    if not data:
-        print("[WARNING] No data to save.")
-        return
-    keys = data[0].keys()
-    print(f"Saving cleaned data to: {file_path}")
-    try:
-        with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=keys)
-            writer.writeheader()
-            writer.writerows(data)
-    except PermissionError:
-        print(f"\n[ERROR] Could not save to '{file_path}'.")
-        print("Is the file open in Excel? Please close it and try again.")
-    except Exception as e:
-        print(f"\n[ERROR] An unexpected error occurred: {e}")
-
-# --- DATA PARSING/CLEANING FUNCTIONS (Imperative Logic) ---
-
-# We'll keep the core parsing functions for consistency, but remove
-# pattern matching (case) for a more typical imperative approach (if/elif/else).
-
-def parse_float(value: str, default: float) -> float:
-    """Handles dirty data strings for floats using explicit if/else."""
-    try:
-        if value in ["ERROR", "UNKNOWN", ""]:
-            return round(float(default), DECIMAL_PLACES)
-        else:
-            return round(float(value), DECIMAL_PLACES)
-    except ValueError:
-        # In a robust system, you might log this instead of raising
-        raise ValueError(f"Cannot convert {value} to float.")
-
-def parse_int(value: str, default: int) -> int:
-    """Handles dirty data strings for integers using explicit if/else."""
-    try:
-        if value in ["ERROR", "UNKNOWN", ""]:
-            return default
-        else:
-            return int(value)
-    except ValueError:
-        raise ValueError(f"Cannot convert {value} to int.")
-        
-def parse_date(value: str, default: str) -> str:
-    """Handles dirty data strings for dates using explicit if/else."""
-    try:
-        if value in ["ERROR", "UNKNOWN", ""]:
-            return default
-        else:
-            # Check for valid date format
-            datetime.strptime(value, '%Y-%m-%d')
-            return value
-    except ValueError:
-        raise ValueError(f"Cannot parse date from {value}.")
-
-def parse_string(value: str, default: str) -> str:
-    """Handles dirty data strings for strings using explicit if/else."""
-    if value in ["ERROR", "UNKNOWN", ""]:
-        return default
-    else:
-        return value
+OUTPUT_FILE = 'imperative_output.csv'
 
 # --- CORE IMPERATIVE DATA PROCESSING ---
 
@@ -185,9 +114,9 @@ def get_aggregate_total_spent(data, item_name, column_name):
     
     return total
 
-# --- ANALYSIS FUNCTIONS (Using explicit loop to extract data) ---
+# --- ANALYSIS FUNCTIONS (Imperative-specific implementations) ---
 
-def print_numeric_analysis(data, column_name, label):
+def print_numeric_analysis_imperative(data, column_name, label):
     """Calculates and prints numeric stats using an imperative loop for data extraction."""
     values = []
     # Explicit loop replacing the map() function
@@ -205,7 +134,7 @@ def print_numeric_analysis(data, column_name, label):
     print(f"Median:     {statistics.median(values):.2f}")
     print(f"Variance:   {statistics.variance(values):.2f}")
 
-def print_categorical_analysis(data, column_name, label):
+def print_categorical_analysis_imperative(data, column_name, label):
     """Finds and prints the mode for a categorical column using an imperative loop."""
     values = []
     # Explicit loop replacing the map() function
@@ -248,16 +177,16 @@ def main_imperative():
     
     # 5. Run Numeric Analysis
     print("\n--- Running Statistical Analysis ---")
-    print_numeric_analysis(cleaned_data, 'Quantity', 'Quantity Sold')
-    print_numeric_analysis(cleaned_data, 'Price Per Unit', 'Unit Price')
-    print_numeric_analysis(cleaned_data, 'Total Spent', 'Original Total Spent (from CSV)')
-    print_numeric_analysis(cleaned_data, 'Corrected Total', 'Corrected Total (Calculated)')
+    print_numeric_analysis_imperative(cleaned_data, 'Quantity', 'Quantity Sold')
+    print_numeric_analysis_imperative(cleaned_data, 'Price Per Unit', 'Unit Price')
+    print_numeric_analysis_imperative(cleaned_data, 'Total Spent', 'Original Total Spent (from CSV)')
+    print_numeric_analysis_imperative(cleaned_data, 'Corrected Total', 'Corrected Total (Calculated)')
 
     # 6. Run Categorical/Trend Analysis
-    print_categorical_analysis(cleaned_data, 'Item', 'Top Selling Items')
-    print_categorical_analysis(cleaned_data, 'Location', 'Top Locations')
-    print_categorical_analysis(cleaned_data, 'Payment Method', 'Preferred Payment Methods')
-    print_categorical_analysis(cleaned_data, 'Transaction Date', 'Busiest Day')
+    print_categorical_analysis_imperative(cleaned_data, 'Item', 'Top Selling Items')
+    print_categorical_analysis_imperative(cleaned_data, 'Location', 'Top Locations')
+    print_categorical_analysis_imperative(cleaned_data, 'Payment Method', 'Preferred Payment Methods')
+    print_categorical_analysis_imperative(cleaned_data, 'Transaction Date', 'Busiest Day')
 
     # 7. Save Cleaned Data
     save_to_csv(OUTPUT_FILE, cleaned_data)

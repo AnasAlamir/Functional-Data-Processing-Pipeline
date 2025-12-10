@@ -1,81 +1,26 @@
-import csv
 import sys
 import statistics
-from datetime import datetime
 from functools import reduce
+from common import (
+    read_csv, 
+    save_to_csv, 
+    parse_float, 
+    parse_int, 
+    parse_date, 
+    parse_string,
+    print_numeric_analysis,
+    print_categorical_analysis,
+    DECIMAL_PLACES
+)
+
 # --- CONFIGURATION ---
 # CRITICAL: Increase recursion limit to handle 10,000 rows
 sys.setrecursionlimit(20000)
 
 INPUT_FILE = 'dirty_cafe_sales.csv'
 OUTPUT_FILE = 'functional_pure_output.csv'
-DECIMAL_PLACES = 2
 
-def read_csv(file_path):
-    """Reads a CSV file and returns its contents as a list of dictionaries."""
-    with open(file_path, mode='r', newline='', encoding='utf-8') as csvfile:
-        return list(csv.DictReader(csvfile))
-
-def save_to_csv(file_path, data):
-    """Saves a list of dictionaries to a CSV file."""
-    if not data:
-        return
-    keys = data[0].keys()
-    try:
-        with open(file_path, mode='w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=keys)
-            writer.writeheader()
-            writer.writerows(data)
-    except PermissionError:
-        print(f"\n[ERROR] Could not save to '{file_path}'.")
-        print("Is the file open in Excel? Please close it and try again.")
-    except Exception as e:
-        print(f"\n[ERROR] An unexpected error occurred: {e}")
-
-def parse_float(value: str, default: float) -> float:
-    """
-    Uses Pattern Matching to handle dirty data strings.
-    """
-    try:
-        match value:
-            case "ERROR" | "UNKNOWN" | "": 
-                return round(float(default), DECIMAL_PLACES)
-            case _: 
-                return round(float(value), DECIMAL_PLACES)
-    except ValueError:
-        raise ValueError(f"Cannot convert {value} to float.")
-
-def parse_int(value: str, default: int) -> int:
-    """
-    Uses Pattern Matching to handle dirty data strings.
-    """
-    try:
-        match value:
-            case "ERROR" | "UNKNOWN" | "": 
-                return default
-            case _: 
-                return int(value)
-    except ValueError:
-        raise ValueError(f"Cannot convert {value} to int.")
-    
-def parse_date(value: str, default: str) -> str:
-    try:
-        match value:
-            case "ERROR" | "UNKNOWN" | "":
-                return default
-            case _:
-                datetime.strptime(value, '%Y-%m-%d')
-                return value
-    except ValueError:
-        raise ValueError(f"Cannot parse date from {value}.")
-
-def parse_string(value: str, default: str) -> str:
-    match value:
-        case "ERROR" | "UNKNOWN" | "":
-            return default
-        case _:
-            return value
-
+# --- FUNCTIONAL-SPECIFIC FUNCTIONS ---
 def get_column(data, column_name, accumulator):
     match data:
         case []:
@@ -114,23 +59,6 @@ def get_aggregate_by_coloumn_for_item(data, item_name, column_name, operation):
     final_item_list = list(item_data_iter)
     corected_totals_item = get_column(final_item_list, column_name, [])
     return reduce(operation, corected_totals_item, 0.0)
-
-# Data Analysis & Statistical Summaries
-def print_numeric_analysis(final_data, column_name, label):
-    # Use map() to extract column efficiently (Faster than recursive get_column)
-    values = list(map(lambda row: row[column_name], final_data))
-    print(f"\n--- Analysis: {label} ---")
-    print(f"Mean:     {statistics.mean(values):.2f}")
-    print(f"Median:   {statistics.median(values):.2f}")
-    print(f"Variance: {statistics.variance(values):.2f}")
-
-def print_categorical_analysis(final_data, column_name, label):
-    values = list(map(lambda row: row[column_name], final_data))
-    print(f"\n--- Trend: {label} ---")
-    try:
-        print(f"Most Common (Mode): {statistics.mode(values)}")
-    except statistics.StatisticsError:
-        print(f"Most Common (Mode): Multiple found")
 
 def main():
     print("--- Starting Pure Functional Pipeline ---")
@@ -206,26 +134,3 @@ if __name__ == "__main__":
 
 
 
-
-# def mean(values):
-#     return sum(values) / len(values) if values else 0.0
-
-# def mode(values, frequency = {}):
-#     match values:
-#         case []:
-#             if frequency == {}:
-#                 return None
-#             return max(frequency, key=frequency.get)
-#         case [head, *tail]:
-#             frequency[head] = frequency.get(head, 0) + 1
-#             return mode(tail, frequency)
-
-# def median(values):
-#     sorted_values = sorted(values)
-#     n = len(sorted_values)
-#     if n % 2 == 1:
-#         return sorted_values[n // 2]
-#     else:
-#         mid1 = sorted_values[n // 2 - 1]
-#         mid2 = sorted_values[n // 2]
-#         return (mid1 + mid2) / 2
