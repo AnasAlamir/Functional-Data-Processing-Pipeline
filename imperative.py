@@ -8,8 +8,8 @@ from datetime import datetime
 # as it avoids deep recursive calls (like the functional get_column).
 # sys.setrecursionlimit(20000)
 
-INPUT_FILE = 'dirty_cafe_sales.csv'
-OUTPUT_FILE = 'imperative_output.csv' 
+INPUT_FILE = 'datasets/dirty_cafe_sales.csv'
+OUTPUT_FILE = 'datasets/imperative_output.csv' 
 DECIMAL_PLACES = 2
 
 # --- I/O FUNCTIONS (Remain largely the same, as they are I/O bound) ---

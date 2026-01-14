@@ -7,8 +7,8 @@ from functools import reduce
 # CRITICAL: Increase recursion limit to handle 10,000 rows
 sys.setrecursionlimit(20000)
 
-INPUT_FILE = 'dirty_cafe_sales.csv'
-OUTPUT_FILE = 'functional_pure_output.csv'
+INPUT_FILE = 'datasets/dirty_cafe_sales.csv'
+OUTPUT_FILE = 'datasets/functional_pure_output.csv'
 DECIMAL_PLACES = 2
 
 def read_csv(file_path):
